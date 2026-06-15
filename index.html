@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Lumberjack Forge: КУЗНИЦА МИХАЛЫЧА</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { 
+            margin: 0; padding: 0; 
+            background: #0b0f19; 
+            font-family: 'Segoe UI', Roboto, Helvetica, sans-serif; 
+            text-align: center; color: white; 
+            overflow: hidden; user-select: none; -webkit-user-select: none;
+        }
+        #score-board {
+            display: flex; justify-content: space-around;
+            max-width: 500px; margin: 15px auto 0 auto;
+        }
+        .score-val { font-size: 24px; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
+        #score { color: #f1c40f; }
+        #combo { color: #38bdf8; }
+        #game-container { position: relative; width: 95%; max-width: 500px; margin: 10px auto; }
+        canvas { 
+            background: #1e1b4b; display: block; width: 100%;
+            border: 5px solid #d97706; border-radius: 15px; 
+            box-shadow: 0px 10px 30px rgba(0,0,0,0.9);
+        }
+        
+        /* ГЛАВНЫЙ ЭКРАН И МЕНЮ */
+        .screen-overlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(11, 15, 25, 0.96); border-radius: 11px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            padding: 20px; z-index: 10; box-sizing: border-box;
+            backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+        }
+        .screen-overlay h2 { color: #f97316; margin: 0 0 10px 0; font-size: 28px; font-weight: 900; letter-spacing: 1px; text-shadow: 0 0 10px rgba(249,115,22,0.5); }
+        #final-stats { font-size: 18px; margin-bottom: 12px; color: #ecf0f1; }
+        
+        /* ФИКСИРОВАННОЕ ОКНО СПРАВКИ НА ВЕСЬ ЭКРАН ТЕЛЕФОНА */
+        #manual-modal {
+            display: none; position: fixed; top: 8vh; left: 5%; width: 90%; height: 78vh; 
+            background: #1e293b; border: 3px solid #f1c40f; border-radius: 16px;
+            z-index: 100; flex-direction: column; justify-content: space-between;
+            padding: 20px; box-sizing: border-box; box-shadow: 0 0 40px rgba(0,0,0,0.95);
+        }
+        #manual-modal h3 { color: #f1c40f; margin: 0 0 15px 0; font-size: 22px; font-weight: 900; text-transform: uppercase; }
+        
+        .manual-scroll { 
+            text-align: left; font-size: 15px; line-height: 1.6; color: #e2e8f0; 
+            overflow-y: scroll; padding-right: 5px; height: calc(100% - 60px); 
+            -webkit-overflow-scrolling: touch; 
+        }
+        .manual-line { margin-bottom: 15px; display: flex; align-items: flex-start; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 8px; }
+        .manual-icon { font-size: 22px; margin-right: 14px; min-width: 28px; text-align: center; }
+        
+        /* КНОПКИ */
+        .btn-group { display: flex; flex-direction: column; gap: 10px; width: 75%; }
+        .game-btn { 
+            border: none; padding: 13px 20px; font-size: 15px; font-weight: bold; 
+            border-radius: 30px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            transition: transform 0.1s; text-transform: uppercase;
+        }
+        .game-btn:active { transform: scale(0.95); }
+        .btn-start { background: linear-gradient(135deg, #ea580c, #f97316); color: white; font-size: 17px; }
+        .btn-manual { background: linear-gradient(135deg, #d97706, #f59e0b); color: #111; }
+        .btn-claim { background: linear-gradient(135deg, #16a34a, #22c55e); color: white; }
+        .btn-restart { background: linear-gradient(135deg, #1d4ed8, #3b82f6); color: white; }
+        .btn-close-manual { background: #dc2626; color: white; width: 90%; padding: 12px; font-size: 16px; border-radius: 25px; margin: 5px auto 0 auto; }
+        .btn-exit { background: #475569; color: white; }
+
+        #leaderboard { width: 90%; background: rgba(0, 0, 0, 0.6); border-radius: 10px; padding: 8px 12px; margin-bottom: 12px; border: 1px solid #334155; }
+        .top-title { font-size: 11px; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px; font-weight: bold; }
+        .row { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; }
+        .row.player-row { color: #f1c40f; font-weight: bold; }
+        .hint { font-size: 13px; color: #475569; margin-top: 10px; font-weight: 500; }
+    </style>
+</head>
+<body>
+    <div id="score-board">
+        <div id="score" class="score-val">Очки: 0</div>
+        <div id="combo" class="score-val">Комбо: x1</div>
+    </div>
+    <div id="game-container">
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        
+        <div id="main-menu" class="screen-overlay">
+            <h2>НАКОВАЛЬНЯ МИХАЛЫЧА</h2>
+            <p style="color: #94a3b8; margin-top: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Режим: РИТМ-КУЗНИЦА 🔨</p>
+            <div class="btn-group">
+                <button class="game-btn btn-start" onclick="startGame()">РАЗДУТЬ ГОРН! 🌋</button>
+                <button class="game-btn btn-manual" onclick="toggleManual(true)">СПРАВКА 📜</button>
+            </div>
+        </div>
+
+        <div id="manual-modal">
+            <h3>📜 ГИД ПО КУЗНЕЧНОМУ ДЕЛУ</h3>
+            <div class="manual-scroll">
+                <div class="manual-line"><span class="manual-icon">🎯</span><span><b>Суть игры:</b> Сверху двигается бегунок. Твоя задача — тапать по экрану ровно тогда, когда он находится в подсвеченных зонах!</span></div>
+                <div class="manual-line"><span class="manual-icon">🟢</span><span><b>Идеально (Зелёная зона):</b> Самый центр шкалы. Даёт максимум очков, увеличивает Комбо-множитель и выбивает мега-сноп золотых искр! Скорость бегунка вырастет.</span></div>
+                <div class="manual-line"><span class="manual-icon">🟡</span><span><b>Хорошо (Жёлтая зона):</b> Края центральной зоны. Очки капают, но Комбо полностью сбрасывается до x1. Будь точнее!</span></div>
+                <div class="manual-line"><span class="manual-icon">🔴</span><span><b>Брак и Промах (Красная зона):</b> Полный крах. Раскаленный топор разлетается на куски, Михалыч рвёт и мечет. Конец игры!</span></div>
+                <div class="manual-line"><span class="manual-icon">🪵</span><span><b>Выгода Вождя:</b> Каждые 150 набранных очков кузнечного мастерства превращаются в <b>5 🪵</b> на склад в бота (лимит: 50 дров за игру).</span></div>
+            </div>
+            <button class="game-btn btn-close-manual" onclick="toggleManual(false)">ПОНЯЛ ✅</button>
+        </div>
+
+        <div id="overlay" class="screen-overlay" style="display: none;">
+            <h2 id="death-title" style="text-shadow: 0 0 15px #ef4444;">БРАК! 💥</h2>
+            <div id="final-stats">Счёт: 0 | Рекорд: 0</div>
+            <div id="leaderboard">
+                <div class="top-title">Лучшие Кузнецы Села</div>
+                <div id="leader-rows"></div>
+            </div>
+            <div class="btn-group">
+                <button id="claim-btn" class="game-btn btn-claim" onclick="sendResult()">Забрать изделия 🪵</button>
+                <button id="restart-btn" class="game-btn btn-restart" onclick="resetGame()">Ковать еще 🔄</button>
+                <button class="game-btn btn-manual" onclick="toggleManual(true)">Справка 📜</button>
+                <button class="game-btn btn-exit" onclick="exitGame()">Выйти ❌</button>
+            </div>
+        </div>
+    </div>
+    <p class="hint">Тапай в любой точке экрана или жми Пробел, лови зелёный тайминг!</p>
+
+    <script>
+        const tg = window.Telegram.WebApp; tg.expand();
+        const canvas = document.getElementById("gameCanvas"); const ctx = canvas.getContext("2d");
+        const mainMenu = document.getElementById("main-menu"); const overlay = document.getElementById("overlay");
+        const manualModal = document.getElementById("manual-modal");
+        const scoreDiv = document.getElementById("score"); const comboDiv = document.getElementById("combo");
+
+        let gameStarted = false; let score = 0; let combo = 1; let gameOver = false;
+        let highscore = localStorage.getItem("forge_highscore") || 0;
+
+        // Параметры шкалы тайминга
+        let slider = { x: 50, y: 60, w: 300, h: 25 };
+        let marker = { x: 200, direction: 1, speed: 4.5 };
+        
+        let particles = []; let hammerY = 180; let isSwinging = false; let hammerTimer = 0;
+        let audioCtx = null; let weaponHeat = 100; // Нагрев заготовки
+
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+
+        function playSound(type) {
+            if (!audioCtx) return;
+            try {
+                let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                if (type === "perfect") {
+                    osc.type = "sine"; osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+                } else if (type === "good") {
+                    osc.type = "triangle"; osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.12, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.12);
+                } else if (type === "fail") {
+                    osc.type = "sawtooth"; osc.frequency.setValueAtTime(120, audioCtx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(30, audioCtx.currentTime + 0.4);
+                    gain.gain.setValueAtTime(0.25, audioCtx.currentTime); gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+                }
+            } catch (e) {}
+        }
+
+        function toggleManual(show) { manualModal.style.display = show ? "flex" : "none"; }
+
+        function spawnSparks(x, y, count, isPerfect) {
+            for(let i=0; i<count; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * (isPerfect ? 12 : 6),
+                    vy: (Math.random() - 1.2) * (isPerfect ? 10 : 5),
+                    size: Math.random() * (isPerfect ? 4 : 2) + 2,
+                    alpha: 1,
+                    color: isPerfect ? (Math.random() > 0.4 ? "#f1c40f" : "#f39c12") : "#e67e22"
+                });
+            }
+        }
+
+        function startGame() { initAudio(); mainMenu.style.display = "none"; gameStarted = true; loop(); }
+
+        function handleHit() {
+            if (!gameStarted || gameOver || isSwinging) return;
+            isSwinging = true; hammerTimer = 8; // Анимация удара молота
+            
+            let mx = marker.x;
+            let mid = slider.x + slider.w / 2;
+            let dist = Math.abs(mx - mid);
+
+            // Проверка зон попадания
+            if (dist <= 15) {
+                // ИДЕАЛЬНО (Зеленая зона по центру)
+                score += 30 * combo; combo++;
+                marker.speed += 0.35; // Ускоряем бегунок
+                playSound("perfect");
+                spawnSparks(200, 270, 25, true);
+                weaponHeat = Math.min(255, weaponHeat + 30);
+            } else if (dist <= 55) {
+                // ХОРОШО (Желтая зона по бокам)
+                score += 10; combo = 1;
+                playSound("good");
+                spawnSparks(200, 270, 10, false);
+                weaponHeat = Math.max(80, weaponHeat - 15);
+            } else {
+                // ПРОМАХ / БРАК (Красная зона или мимо)
+                endGame();
+            }
+
+            scoreDiv.innerText = "Очки: " + score;
+            comboDiv.innerText = "Комбо: x" + combo;
+        }
+
+        /* ИСПРАВЛЕНА СИСТЕМА УПРАВЛЕНИЯ (ФИКС ДВОЙНОГО ТАПА И ПРОБЕЛ) */
+        let lastTouchTime = 0;
+
+        window.addEventListener("touchstart", (e) => { 
+            if(e.target.classList.contains("game-btn") || e.target.closest("#manual-modal") || e.target.closest("#overlay")) return; 
+            lastTouchTime = Date.now();
+            handleHit(); 
+        });
+
+        window.addEventListener("mousedown", (e) => { 
+            if(e.target.classList.contains("game-btn") || e.target.closest("#manual-modal") || e.target.closest("#overlay")) return; 
+            if (Date.now() - lastTouchTime < 500) return; // Глушим фантомный клик мыши после тапа
+            handleHit(); 
+        });
+
+        window.addEventListener("keydown", (e) => {
+            if (e.code === "Space" || e.key === " ") {
+                // Блокируем ложные удары молотом, если открыты меню
+                if (mainMenu.style.display !== "none" || manualModal.style.display === "flex" || overlay.style.display === "flex") return;
+                e.preventDefault(); // Запрещаем скроллить окно браузера пробелом
+                handleHit();
+            }
+        });
+
+        function update() {
+            if (!gameStarted) return;
+
+            // Движение бегунка
+            if (!gameOver) {
+                marker.x += marker.speed * marker.direction;
+                if (marker.x >= slider.x + slider.w || marker.x <= slider.x) {
+                    marker.direction *= -1;
+                }
+            }
+
+            // Искры по физике
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i]; p.x += p.vx; p.y += p.vy;
+                p.vy += 0.35; p.alpha -= 0.025;
+                if (p.alpha <= 0 || p.y > 400) particles.splice(i, 1);
+            }
+
+            // Анимация молота
+            if (isSwinging) {
+                hammerTimer--; hammerY = 240;
+                if (hammerTimer <= 0) { isSwinging = false; hammerY = 180; }
+            }
+        }
+
+        function draw() {
+            ctx.fillStyle = "#1e1b4b"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Отрисовка кузницы на фоне
+            ctx.fillStyle = "#312e81"; ctx.fillRect(40, 0, 10, 400); ctx.fillRect(350, 0, 10, 400);
+
+            // 1. Отрисовка шкалы тайминга
+            let sx = slider.x; let sy = slider.y; let sw = slider.w; let sh = slider.h;
+            ctx.fillStyle = "#ef4444"; ctx.fillRect(sx, sy, sw, sh); // Красная зона
+            ctx.fillStyle = "#eab308"; ctx.fillRect(sx + sw/2 - 55, sy, 110, sh); // Желтая зона
+            ctx.fillStyle = "#22c55e"; ctx.fillRect(sx + sw/2 - 15, sy, 30, sh); // Зеленая зона
+
+            // Маркер (Бегунок)
+            ctx.fillStyle = "#ffffff"; ctx.shadowBlur = 10; ctx.shadowColor = "#ffffff";
+            ctx.fillRect(marker.x - 4, sy - 4, 8, sh + 8);
+            ctx.shadowBlur = 0;
+
+            // 2. Наковальня
+            ctx.fillStyle = "#475569"; ctx.fillRect(120, 280, 160, 80); // Основание
+            ctx.fillStyle = "#334155"; ctx.beginPath(); ctx.moveTo(120, 280); ctx.lineTo(90, 280); ctx.lineTo(120, 310); ctx.fill(); // Рог наковальни
+
+            // 3. Раскаленный топор Михалыча
+            if (!gameOver) {
+                ctx.fillStyle = `rgb(${weaponHeat}, 60, 15)`; ctx.shadowBlur = 15; ctx.shadowColor = `rgb(${weaponHeat}, 50, 10)`;
+                ctx.fillRect(150, 268, 100, 12); // Лезвие
+                ctx.fillStyle = "#78350f"; ctx.shadowBlur = 0; ctx.fillRect(250, 271, 40, 6); // Топорище
+            }
+
+            // Рендер искр
+            for (let p of particles) { ctx.fillStyle = p.color; ctx.globalAlpha = p.alpha; ctx.fillRect(p.x, p.y, p.size, p.size); }
+            ctx.globalAlpha = 1.0;
+
+            // 4. Молот Михалыча
+            if (gameStarted) {
+                ctx.fillStyle = "#1e293b"; ctx.fillRect(185, hammerY, 30, 20); // Боек молота
+                ctx.fillStyle = "#b45309"; ctx.fillRect(197, hammerY - 50, 6, 50); // Рукоятка
+            }
+        }
+
+        function loop() { if (!gameStarted) return; update(); draw(); requestAnimationFrame(loop); }
+
+        function endGame() {
+            if (gameOver) return; gameOver = true; playSound("fail");
+            spawnSparks(200, 270, 45, true); // Финальный взрыв заготовки
+
+            if (score > highscore) { highscore = score; localStorage.setItem("forge_highscore", highscore); }
+            document.getElementById("final-stats").innerText = "Счёт: " + score + " | Рекорд: " + highscore;
+            
+            let woodEarned = Math.floor(score / 150) * 5; if (woodEarned > 50) woodEarned = 50;
+            document.getElementById("claim-btn").innerText = "Забрать изделия (+" + woodEarned + " 🪵)";
+
+            // Таблица лидеров из параметров бота
+            let globalTop = []; const urlParams = new URLSearchParams(window.location.search); const topParam = urlParams.get('top');
+            if (topParam) {
+                topParam.split(',').forEach(pair => {
+                    const parts = pair.split('-');
+                    if (parts.length >= 2) { const s = parseInt(parts.pop()); const n = parts.join('-'); globalTop.push({ name: n, score: s }); }
+                });
+            }
+            if (!globalTop.some(p => p.score === parseInt(highscore))) { globalTop.push({ name: "🪵 Ты (Рекорд)", score: parseInt(highscore), isPlayer: true }); }
+            globalTop.sort((a, b) => b.score - a.score); globalTop = globalTop.slice(0, 5);
+
+            let rowsHtml = "";
+            globalTop.forEach((item, index) => {
+                let medal = index === 0 ? "🥇 " : index === 1 ? "🥈 " : index === 2 ? "🥉 " : "📜 ";
+                rowsHtml += `<div class="${item.isPlayer ? 'row player-row' : 'row'}"><span>${medal}${item.name}</span><span>${item.score}</span></div>`;
+            });
+            document.getElementById("leader-rows").innerHTML = rowsHtml;
+            setTimeout(() => { overlay.style.display = "flex"; }, 500);
+        }
+
+        function resetGame() {
+            score = 0; combo = 1; gameOver = false; marker.x = 200; marker.speed = 4.5; particles = []; weaponHeat = 150;
+            scoreDiv.innerText = "Очки: 0"; comboDiv.innerText = "Комбо: x1"; overlay.style.display = "none";
+        }
+
+        function exitGame() { tg.close(); }
+        
+        function sendResult() { 
+            tg.sendData("forge_score:" + score + ":1"); 
+            tg.close(); 
+        }
+        draw();
+    </script>
+</body>
+</html>
