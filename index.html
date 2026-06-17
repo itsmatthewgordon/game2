@@ -15,66 +15,137 @@
         }
         #score-board {
             display: flex; justify-content: space-around;
-            max-width: 500px; margin: 15px auto 0 auto;
+            max-width: 500px; margin: 12px auto 0 auto;
         }
-        .score-val { font-size: 24px; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
+        .score-val { font-size: 22px; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
         #score { color: #f1c40f; }
         #combo { color: #38bdf8; }
-        #game-container { position: relative; width: 95%; max-width: 500px; margin: 10px auto; }
+        #game-container { position: relative; width: 95%; max-width: 500px; margin: 5px auto; }
         canvas { 
             background: #1e1b4b; display: block; width: 100%;
-            border: 5px solid #d97706; border-radius: 15px; 
-            box-shadow: 0px 10px 30px rgba(0,0,0,0.9);
+            border: 4px solid #d97706; border-radius: 12px; 
+            box-shadow: 0px 10px 25px rgba(0,0,0,0.9);
         }
         
         /* ГЛАВНЫЙ ЭКРАН И МЕНЮ */
         .screen-overlay {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(11, 15, 25, 0.96); border-radius: 11px;
+            background: rgba(11, 15, 25, 0.96); border-radius: 9px;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            padding: 20px; z-index: 10; box-sizing: border-box;
+            padding: 15px; z-index: 10; box-sizing: border-box;
             backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
         }
-        .screen-overlay h2 { color: #f97316; margin: 0 0 10px 0; font-size: 28px; font-weight: 900; letter-spacing: 1px; text-shadow: 0 0 10px rgba(249,115,22,0.5); }
-        #final-stats { font-size: 18px; margin-bottom: 12px; color: #ecf0f1; }
+        .screen-overlay h2 { color: #f97316; margin: 0 0 5px 0; font-size: 26px; font-weight: 900; letter-spacing: 1px; text-shadow: 0 0 10px rgba(249,115,22,0.5); }
+        #final-stats { font-size: 16px; margin-bottom: 8px; color: #ecf0f1; font-weight: 700; }
         
-        /* ФИКСИРОВАННОЕ ОКНО СПРАВКИ НА ВЕСЬ ЭКРАН ТЕЛЕФОНА */
+        /* ФИКСИРОВАННОЕ ОКНО СПРАВКИ */
         #manual-modal {
             display: none; position: fixed; top: 8vh; left: 5%; width: 90%; height: 78vh; 
             background: #1e293b; border: 3px solid #f1c40f; border-radius: 16px;
             z-index: 100; flex-direction: column; justify-content: space-between;
             padding: 20px; box-sizing: border-box; box-shadow: 0 0 40px rgba(0,0,0,0.95);
         }
-        #manual-modal h3 { color: #f1c40f; margin: 0 0 15px 0; font-size: 22px; font-weight: 900; text-transform: uppercase; }
+        #manual-modal h3 { color: #f1c40f; margin: 0 0 15px 0; font-size: 20px; font-weight: 900; text-transform: uppercase; }
         
         .manual-scroll { 
-            text-align: left; font-size: 15px; line-height: 1.6; color: #e2e8f0; 
+            text-align: left; font-size: 14px; line-height: 1.5; color: #e2e8f0; 
             overflow-y: scroll; padding-right: 5px; height: calc(100% - 60px); 
             -webkit-overflow-scrolling: touch; 
         }
-        .manual-line { margin-bottom: 15px; display: flex; align-items: flex-start; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 8px; }
-        .manual-icon { font-size: 22px; margin-right: 14px; min-width: 28px; text-align: center; }
+        .manual-line { margin-bottom: 12px; display: flex; align-items: flex-start; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 6px; }
+        .manual-icon { font-size: 20px; margin-right: 12px; min-width: 25px; text-align: center; }
         
+        /* ВЕЛИКОЛЕПНАЯ ТАБЛИЦА ЛИДЕРОВ КУЗНИЦЫ (UX/UI АПГРЕЙД) */
+        #leaderboard { 
+            width: 95%; 
+            max-width: 440px; 
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98)); 
+            border: 2px solid #475569; 
+            border-radius: 12px; 
+            padding: 10px 12px; 
+            margin-bottom: 10px; 
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.6), 0 4px 15px rgba(0,0,0,0.5); 
+            box-sizing: border-box;
+        }
+        .top-title { 
+            font-size: 12px; 
+            color: #f97316; 
+            text-transform: uppercase; 
+            margin-bottom: 8px; 
+            font-weight: 900; 
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(249, 115, 22, 0.2);
+            padding-bottom: 4px;
+            text-shadow: 0 0 6px rgba(249, 115, 22, 0.3);
+        }
+        .row { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            font-size: 13px; 
+            padding: 6px 10px; 
+            margin: 4px 0;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            transition: all 0.2s;
+        }
+        .row span:first-child {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-align: left;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .score-badge {
+            background: #1e293b;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 800;
+            color: #f97316;
+            border: 1px solid #475569;
+            font-size: 12px;
+            min-width: 35px;
+            text-align: center;
+        }
+        
+        /* Статус Жаркого Пламени для текущего игрока */
+        .row.player-row { 
+            background: linear-gradient(90deg, rgba(249, 115, 22, 0.18), rgba(234, 88, 12, 0.15));
+            border: 1px solid #f97316; 
+            color: #fff; 
+            font-weight: 800; 
+            box-shadow: 0 0 10px rgba(249, 115, 22, 0.2);
+            animation: pulseGlow 2s infinite alternate;
+        }
+        .row.player-row .score-badge {
+            background: #f97316;
+            color: #0f172a;
+            border: 1px solid #f97316;
+        }
+        
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 6px rgba(249, 115, 22, 0.15); }
+            100% { box-shadow: 0 0 14px rgba(249, 115, 22, 0.35); }
+        }
+
         /* КНОПКИ */
-        .btn-group { display: flex; flex-direction: column; gap: 10px; width: 75%; }
+        .btn-group { display: flex; flex-direction: column; gap: 6px; width: 85%; }
         .game-btn { 
-            border: none; padding: 13px 20px; font-size: 15px; font-weight: bold; 
-            border-radius: 30px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            border: none; padding: 10px 15px; font-size: 14px; font-weight: bold; 
+            border-radius: 25px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
             transition: transform 0.1s; text-transform: uppercase;
         }
-        .game-btn:active { transform: scale(0.95); }
-        .btn-start { background: linear-gradient(135deg, #ea580c, #f97316); color: white; font-size: 17px; }
+        .game-btn:active { transform: scale(0.96); }
+        .btn-start { background: linear-gradient(135deg, #ea580c, #f97316); color: white; font-size: 15px; }
         .btn-manual { background: linear-gradient(135deg, #d97706, #f59e0b); color: #111; }
-        .btn-claim { background: linear-gradient(135deg, #16a34a, #22c55e); color: white; }
+        .btn-claim { background: linear-gradient(135deg, #16a34a, #22c55e); color: white; font-size: 15px; }
         .btn-restart { background: linear-gradient(135deg, #1d4ed8, #3b82f6); color: white; }
-        .btn-close-manual { background: #dc2626; color: white; width: 90%; padding: 12px; font-size: 16px; border-radius: 25px; margin: 5px auto 0 auto; }
+        .btn-close-manual { background: #dc2626; color: white; width: 90%; padding: 11px; font-size: 15px; border-radius: 20px; margin: 5px auto 0 auto; }
         .btn-exit { background: #475569; color: white; }
-
-        #leaderboard { width: 90%; background: rgba(0, 0, 0, 0.6); border-radius: 10px; padding: 8px 12px; margin-bottom: 12px; border: 1px solid #334155; }
-        .top-title { font-size: 11px; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px; font-weight: bold; }
-        .row { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; }
-        .row.player-row { color: #f1c40f; font-weight: bold; }
-        .hint { font-size: 13px; color: #475569; margin-top: 10px; font-weight: 500; }
+        .hint { font-size: 12px; color: #475569; margin-top: 5px; font-weight: 500; }
     </style>
 </head>
 <body>
@@ -87,7 +158,7 @@
         
         <div id="main-menu" class="screen-overlay">
             <h2>НАКОВАЛЬНЯ МИХАЛЫЧА</h2>
-            <p style="color: #94a3b8; margin-top: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">Режим: РИТМ-КУЗНИЦА 🔨</p>
+            <p style="color: #94a3b8; margin-top: 0; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">Режим: РИТМ-КУЗНИЦА 🔨</p>
             <div class="btn-group">
                 <button class="game-btn btn-start" onclick="startGame()">РАЗДУТЬ ГОРН! 🌋</button>
                 <button class="game-btn btn-manual" onclick="toggleManual(true)">СПРАВКА 📜</button>
@@ -101,7 +172,7 @@
                 <div class="manual-line"><span class="manual-icon">🟢</span><span><b>Идеально (Зелёная зона):</b> Самый центр шкалы. Даёт максимум очков, увеличивает Комбо-множитель и выбивает мега-сноп золотых искр! Скорость бегунка вырастет.</span></div>
                 <div class="manual-line"><span class="manual-icon">🟡</span><span><b>Хорошо (Жёлтая зона):</b> Края центральной зоны. Очки капают, но Комбо полностью сбрасывается до x1. Будь точнее!</span></div>
                 <div class="manual-line"><span class="manual-icon">🔴</span><span><b>Брак и Промах (Красная зона):</b> Полный крах. Раскаленный топор разлетается на куски, Михалыч рвёт и мечет. Конец игры!</span></div>
-                <div class="manual-line"><span class="manual-icon">🪵</span><span><b>Выгода Вождя:</b> Каждые 150 набранных очков кузнечного мастерства превращаются в <b>5 🪵</b> на склад в бота (лимит: 50 дров за игру).</span></div>
+                <div class="manual-line"><span class="manual-icon">🪵</span><span><b>Выгода Вождя:</b> Каждые 100 набранных очков кузнечного мастерства превращаются в <b>25 🪵</b> на склад в бота! Все лимиты и ограничения на доход полностью убраны.</span></div>
             </div>
             <button class="game-btn btn-close-manual" onclick="toggleManual(false)">ПОНЯЛ ✅</button>
         </div>
@@ -110,7 +181,7 @@
             <h2 id="death-title" style="text-shadow: 0 0 15px #ef4444;">БРАК! 💥</h2>
             <div id="final-stats">Счёт: 0 | Рекорд: 0</div>
             <div id="leaderboard">
-                <div class="top-title">Лучшие Кузнецы Села</div>
+                <div class="top-title">🏆 Мастера Молота и Горна</div>
                 <div id="leader-rows"></div>
             </div>
             <div class="btn-group">
@@ -133,12 +204,11 @@
         let gameStarted = false; let score = 0; let combo = 1; let gameOver = false;
         let highscore = localStorage.getItem("forge_highscore") || 0;
 
-        // Параметры шкалы тайминга
         let slider = { x: 50, y: 60, w: 300, h: 25 };
         let marker = { x: 200, direction: 1, speed: 4.5 };
         
         let particles = []; let hammerY = 180; let isSwinging = false; let hammerTimer = 0;
-        let audioCtx = null; let weaponHeat = 100; // Нагрев заготовки
+        let audioCtx = null; let weaponHeat = 100;
 
         function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
 
@@ -183,28 +253,24 @@
 
         function handleHit() {
             if (!gameStarted || gameOver || isSwinging) return;
-            isSwinging = true; hammerTimer = 8; // Анимация удара молота
+            isSwinging = true; hammerTimer = 8;
             
             let mx = marker.x;
             let mid = slider.x + slider.w / 2;
             let dist = Math.abs(mx - mid);
 
-            // Проверка зон попадания
             if (dist <= 15) {
-                // ИДЕАЛЬНО (Зеленая зона по центру)
                 score += 30 * combo; combo++;
-                marker.speed += 0.35; // Ускоряем бегунок
+                marker.speed += 0.35;
                 playSound("perfect");
                 spawnSparks(200, 270, 25, true);
                 weaponHeat = Math.min(255, weaponHeat + 30);
             } else if (dist <= 55) {
-                // ХОРОШО (Желтая зона по бокам)
                 score += 10; combo = 1;
                 playSound("good");
                 spawnSparks(200, 270, 10, false);
                 weaponHeat = Math.max(80, weaponHeat - 15);
             } else {
-                // ПРОМАХ / БРАК (Красная зона или мимо)
                 endGame();
             }
 
@@ -212,7 +278,6 @@
             comboDiv.innerText = "Комбо: x" + combo;
         }
 
-        /* ИСПРАВЛЕНА СИСТЕМА УПРАВЛЕНИЯ (ФИКС ДВОЙНОГО ТАПА И ПРОБЕЛ) */
         let lastTouchTime = 0;
 
         window.addEventListener("touchstart", (e) => { 
@@ -223,15 +288,14 @@
 
         window.addEventListener("mousedown", (e) => { 
             if(e.target.classList.contains("game-btn") || e.target.closest("#manual-modal") || e.target.closest("#overlay")) return; 
-            if (Date.now() - lastTouchTime < 500) return; // Глушим фантомный клик мыши после тапа
+            if (Date.now() - lastTouchTime < 500) return; 
             handleHit(); 
         });
 
         window.addEventListener("keydown", (e) => {
             if (e.code === "Space" || e.key === " ") {
-                // Блокируем ложные удары молотом, если открыты меню
                 if (mainMenu.style.display !== "none" || manualModal.style.display === "flex" || overlay.style.display === "flex") return;
-                e.preventDefault(); // Запрещаем скроллить окно браузера пробелом
+                e.preventDefault(); 
                 handleHit();
             }
         });
@@ -239,7 +303,6 @@
         function update() {
             if (!gameStarted) return;
 
-            // Движение бегунка
             if (!gameOver) {
                 marker.x += marker.speed * marker.direction;
                 if (marker.x >= slider.x + slider.w || marker.x <= slider.x) {
@@ -247,14 +310,12 @@
                 }
             }
 
-            // Искры по физике
             for (let i = particles.length - 1; i >= 0; i--) {
                 let p = particles[i]; p.x += p.vx; p.y += p.vy;
                 p.vy += 0.35; p.alpha -= 0.025;
                 if (p.alpha <= 0 || p.y > 400) particles.splice(i, 1);
             }
 
-            // Анимация молота
             if (isSwinging) {
                 hammerTimer--; hammerY = 240;
                 if (hammerTimer <= 0) { isSwinging = false; hammerY = 180; }
@@ -263,40 +324,32 @@
 
         function draw() {
             ctx.fillStyle = "#1e1b4b"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Отрисовка кузницы на фоне
             ctx.fillStyle = "#312e81"; ctx.fillRect(40, 0, 10, 400); ctx.fillRect(350, 0, 10, 400);
 
-            // 1. Отрисовка шкалы тайминга
             let sx = slider.x; let sy = slider.y; let sw = slider.w; let sh = slider.h;
-            ctx.fillStyle = "#ef4444"; ctx.fillRect(sx, sy, sw, sh); // Красная зона
-            ctx.fillStyle = "#eab308"; ctx.fillRect(sx + sw/2 - 55, sy, 110, sh); // Желтая зона
-            ctx.fillStyle = "#22c55e"; ctx.fillRect(sx + sw/2 - 15, sy, 30, sh); // Зеленая зона
+            ctx.fillStyle = "#ef4444"; ctx.fillRect(sx, sy, sw, sh); 
+            ctx.fillStyle = "#eab308"; ctx.fillRect(sx + sw/2 - 55, sy, 110, sh); 
+            ctx.fillStyle = "#22c55e"; ctx.fillRect(sx + sw/2 - 15, sy, 30, sh); 
 
-            // Маркер (Бегунок)
             ctx.fillStyle = "#ffffff"; ctx.shadowBlur = 10; ctx.shadowColor = "#ffffff";
             ctx.fillRect(marker.x - 4, sy - 4, 8, sh + 8);
             ctx.shadowBlur = 0;
 
-            // 2. Наковальня
-            ctx.fillStyle = "#475569"; ctx.fillRect(120, 280, 160, 80); // Основание
-            ctx.fillStyle = "#334155"; ctx.beginPath(); ctx.moveTo(120, 280); ctx.lineTo(90, 280); ctx.lineTo(120, 310); ctx.fill(); // Рог наковальни
+            ctx.fillStyle = "#475569"; ctx.fillRect(120, 280, 160, 80); 
+            ctx.fillStyle = "#334155"; ctx.beginPath(); ctx.moveTo(120, 280); ctx.lineTo(90, 280); ctx.lineTo(120, 310); ctx.fill(); 
 
-            // 3. Раскаленный топор Михалыча
             if (!gameOver) {
                 ctx.fillStyle = `rgb(${weaponHeat}, 60, 15)`; ctx.shadowBlur = 15; ctx.shadowColor = `rgb(${weaponHeat}, 50, 10)`;
-                ctx.fillRect(150, 268, 100, 12); // Лезвие
-                ctx.fillStyle = "#78350f"; ctx.shadowBlur = 0; ctx.fillRect(250, 271, 40, 6); // Топорище
+                ctx.fillRect(150, 268, 100, 12); 
+                ctx.fillStyle = "#78350f"; ctx.shadowBlur = 0; ctx.fillRect(250, 271, 40, 6); 
             }
 
-            // Рендер искр
             for (let p of particles) { ctx.fillStyle = p.color; ctx.globalAlpha = p.alpha; ctx.fillRect(p.x, p.y, p.size, p.size); }
             ctx.globalAlpha = 1.0;
 
-            // 4. Молот Михалыча
             if (gameStarted) {
-                ctx.fillStyle = "#1e293b"; ctx.fillRect(185, hammerY, 30, 20); // Боек молота
-                ctx.fillStyle = "#b45309"; ctx.fillRect(197, hammerY - 50, 6, 50); // Рукоятка
+                ctx.fillStyle = "#1e293b"; ctx.fillRect(185, hammerY, 30, 20); 
+                ctx.fillStyle = "#b45309"; ctx.fillRect(197, hammerY - 50, 6, 50); 
             }
         }
 
@@ -304,15 +357,15 @@
 
         function endGame() {
             if (gameOver) return; gameOver = true; playSound("fail");
-            spawnSparks(200, 270, 45, true); // Финальный взрыв заготовки
+            spawnSparks(200, 270, 45, true); 
 
             if (score > highscore) { highscore = score; localStorage.setItem("forge_highscore", highscore); }
             document.getElementById("final-stats").innerText = "Счёт: " + score + " | Рекорд: " + highscore;
             
-            let woodEarned = Math.floor(score / 150) * 5; if (woodEarned > 50) woodEarned = 50;
+            // ВЕЛИКИЙ БУСТ НАГРАДЫ КУЗНИЦЫ И СНОС ПОТОЛКА (* 25)
+            let woodEarned = Math.floor(score / 100) * 25;
             document.getElementById("claim-btn").innerText = "Забрать изделия (+" + woodEarned + " 🪵)";
 
-            // Таблица лидеров из параметров бота
             let globalTop = []; const urlParams = new URLSearchParams(window.location.search); const topParam = urlParams.get('top');
             if (topParam) {
                 topParam.split(',').forEach(pair => {
@@ -325,8 +378,16 @@
 
             let rowsHtml = "";
             globalTop.forEach((item, index) => {
-                let medal = index === 0 ? "🥇 " : index === 1 ? "🥈 " : index === 2 ? "🥉 " : "📜 ";
-                rowsHtml += `<div class="${item.isPlayer ? 'row player-row' : 'row'}"><span>${medal}${item.name}</span><span>${item.score}</span></div>`;
+                let medal = "🪵 ";
+                if (index === 0) medal = "🥇 ";
+                else if (index === 1) medal = "🥈 ";
+                else if (index === 2) medal = "🥉 ";
+
+                let rowClass = item.isPlayer ? 'row player-row' : 'row';
+                rowsHtml += `<div class="${rowClass}">
+                    <span>${medal}${item.name}</span>
+                    <span class="score-badge">${item.score}</span>
+                </div>`;
             });
             document.getElementById("leader-rows").innerHTML = rowsHtml;
             setTimeout(() => { overlay.style.display = "flex"; }, 500);
